@@ -80,10 +80,11 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     }
 
     if ( $self->meta->does_role('App::TimeTracker::Command::Git') ) {
-        my $branch = '#'.$self->issue;
+        my $branch = $self->issue;
         if ($name) {
-            $branch = '#'.$self->safe_branch_name($self->issue.' '.$name);
+            $branch = $self->safe_branch_name($self->issue.' '.$name);
         }
+        $branch=~s/_/-/g;
         $self->branch( lc($branch) ) unless $self->branch;
     }
 };
