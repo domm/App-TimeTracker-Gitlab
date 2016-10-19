@@ -11,7 +11,6 @@ our $VERSION = "1.000";
 use Moose::Role;
 use HTTP::Tiny;
 use JSON::XS qw(encode_json decode_json);
-use Path::Class;
 
 has 'issue' => (
     is            => 'rw',
@@ -69,7 +68,7 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     my $issuename = 'issue#' . $self->issue;
     $self->insert_tag($issuename);
 
-    my $issue = $self->_call('GET','projects/validad%2FApp-TimeTracker-Gitlab/issues?iid='.$self->issue);
+    my $issue = $self->_call('GET','projects/'.$self->project_id.'/issues?iid='.$self->issue);
     my $name = $issue->[0]{title};
 
     if ( defined $self->description ) {
@@ -87,6 +86,9 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
         $branch=~s/_/-/g;
         $self->branch( lc($branch) ) unless $self->branch;
     }
+
+    # TODO set assignee
+
 };
 
 #after [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
@@ -119,5 +121,64 @@ no Moose::Role;
 1;
 
 __END__
+
+=head1 DESCRIPTION
+
+Connect tracker with L<Gitlab|https://about.gitlab.com/>.
+
+Using the Gitlab plugin, tracker can fetch the name of an issue and use
+it as the task's description; generate a nicely named C<git> branch
+(if you're also using the C<Git> plugin).
+
+Planned but not implemented: Adding yourself as the assignee.
+
+=head1 CONFIGURATION
+
+=head2 plugins
+
+Add C<Gitlab> to the list of plugins.
+
+=head2 gitlab
+
+add a hash named C<gitlab>, containing the following keys:
+
+=head3 url [REQUIRED]
+
+The base URL of your gitlab instance, eg C<https://gitlab.example.com>
+
+=head3 token [REQUIRED]
+
+Your personal access token. Get it from your gitlab profile page. For
+now you probably want to use a token with unlimited expiry time. We
+might implement a way to fetch a shortlived token (like in the Trello
+plugin), but gitlab does not support installed-apps OAuth2.
+
+=head3 namespace [REQUIRED]
+
+The C<namespace> of the current project, eg C<validad> if this is your repo: C<https://gitlab.example.com/validad/App-TimeTracker-Gitlab>
+
+=head1 NEW COMMANDS
+
+No new commands
+
+=head1 CHANGES TO OTHER COMMANDS
+
+=head2 start, continue
+
+=head3 --issue
+
+    ~/perl/Your-Project$ tracker start --issue 42
+
+If C<--issue> is set and we can find an issue with this id in your current repo
+
+=over
+
+=item * set or append the issue name in the task description ("Rev up FluxCompensator!!")
+
+=item * add the issue id to the tasks tags ("isseu#42")
+
+=item * if C<Git> is also used, determine a save branch name from the issue name, and change into this branch ("42-rev-up-fluxcompensator")
+
+=back
 
 
