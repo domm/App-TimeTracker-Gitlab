@@ -175,7 +175,7 @@ If C<--issue> is set and we can find an issue with this id in your current repo
 
 =item * set or append the issue name in the task description ("Rev up FluxCompensator!!")
 
-=item * add the issue id to the tasks tags ("isseu#42")
+=item * add the issue id to the tasks tags ("issue#42")
 
 =item * if C<Git> is also used, determine a save branch name from the issue name, and change into this branch ("42-rev-up-fluxcompensator")
 
