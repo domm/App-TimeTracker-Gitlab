@@ -44,8 +44,8 @@ sub _build_gitlab_client {
 
 has 'project_id' => (
     is=>'ro',
-    isa=>'Int',
-    documentation=>'The ID of this project',
+    isa=>'Str',
+    documentation=>'The ID or namespace/name of this project',
     lazy_build=>1,
 );
 
