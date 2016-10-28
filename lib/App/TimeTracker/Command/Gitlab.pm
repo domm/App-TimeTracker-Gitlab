@@ -6,7 +6,7 @@ use 5.010;
 # ABSTRACT: App::TimeTracker Gitlab plugin
 use App::TimeTracker::Utils qw(error_message warning_message);
 
-our $VERSION = "1.001";
+our $VERSION = "1.002";
 
 use Moose::Role;
 use HTTP::Tiny;
@@ -68,8 +68,13 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     my $issuename = 'issue#' . $self->issue;
     $self->insert_tag($issuename);
 
-    my $issue = $self->_call('GET','projects/'.$self->project_id.'/issues?iid='.$self->issue);
-    my $name = $issue->[0]{title};
+    my $issues = $self->_call('GET','projects/'.$self->project_id.'/issues?iid='.$self->issue);
+    my $issue = $issues->[0];
+    unless ($issue) {
+        error_message("Cannot find issue %s in %s",$self->issue,$self->project_id);
+        return;
+    }
+    my $name = $issue->{title};
 
     if ( defined $self->description ) {
         $self->description( $self->description . ' ' . $name );
