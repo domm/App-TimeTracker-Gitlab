@@ -6,7 +6,7 @@ use 5.010;
 # ABSTRACT: App::TimeTracker Gitlab plugin
 use App::TimeTracker::Utils qw(error_message warning_message);
 
-our $VERSION = "1.002";
+our $VERSION = "1.003";
 
 use Moose::Role;
 use HTTP::Tiny;
