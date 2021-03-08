@@ -67,8 +67,9 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     my $self = shift;
     return unless $self->has_issue;
 
-    my $issuename = 'issue#' . $self->issue;
+    my $issuename = $self->_prefix . $self->issue;
     $self->insert_tag($issuename);
+    $self->id($self->issue);
 
     my $issues = $self->_call('GET','projects/'.$self->project_id.'/issues?iids[]='.$self->issue);
     my $issue_from_list = $issues->[0];
@@ -171,10 +172,15 @@ sub _call {
     error_message(join(" ",$res->{status},$res->{reason}));
 }
 
-sub App::TimeTracker::Data::Task::gitlab_issue {
+sub _prefix {
     my $self = shift;
+    return $self->config->{gitlab}{prefix} || 'issue#';
+}
+
+sub App::TimeTracker::Data::Task::gitlab_issue {
+    my ($self, $prefix) = @_;
     foreach my $tag ( @{ $self->tags } ) {
-        next unless $tag =~ /^issue#(\d+)/;
+        next unless $tag =~ /^$prefix(\d+)/;
         return $1;
     }
 }
