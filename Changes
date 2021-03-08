@@ -1,5 +1,9 @@
 Revision history for App::TimeTracker::Command::Gitlab
 
+{{$NEXT}}
+    - switch to Dist::Zilla::PluginBundle::Author::DOMM
+
+
 1.003   2018-04-30T16:00:20
     - during --start: assign to current user, reopen if closed, add/remove labels
     - dep on JSON::MaybeXS via json_maybexs.pl

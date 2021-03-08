@@ -1,12 +1,13 @@
 package App::TimeTracker::Command::Gitlab;
+
+# ABSTRACT: App::TimeTracker Gitlab plugin
+# VERSION
+
 use strict;
 use warnings;
 use 5.010;
 
-# ABSTRACT: App::TimeTracker Gitlab plugin
-use App::TimeTracker::Utils qw(error_message warning_message);
-
-our $VERSION = "1.003";
+use App::TimeTracker::Utils 3.100 qw(error_message warning_message);
 
 use Moose::Role;
 use HTTP::Tiny;
