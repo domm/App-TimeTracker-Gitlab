@@ -78,7 +78,7 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
         return;
     }
     my $issue_id = $issue_from_list->{id};
-    my $issue =  $self->_call('GET','projects/'.$self->project_id.'/issues/'.$issue_id);
+    my $issue =  $self->_call('GET','issues/'.$issue_id);
 
     my $name = $issue->{title};
 
@@ -163,7 +163,7 @@ sub _get_user_id {
 sub _call {
     my ($self,$method,  $endpoint, $args) = @_;
 
-    my $url = $self->config->{gitlab}{url}.'/api/v3/'.$endpoint;
+    my $url = $self->config->{gitlab}{url}.'/api/v4/'.$endpoint;
     my $res = $self->gitlab_client->request($method,$url);
     if ($res->{success}) {
         my $data = decode_json($res->{content});
