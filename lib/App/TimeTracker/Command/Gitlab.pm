@@ -67,9 +67,9 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     my $self = shift;
     return unless $self->has_issue;
 
-    my $issuename = $self->_prefix . $self->issue;
+    my $issuename = $self->_gitlab_prefix . $self->issue;
     $self->insert_tag($issuename);
-    $self->id($self->issue);
+    $self->id('#'.$self->issue);
 
     my $issues = $self->_call('GET','projects/'.$self->project_id.'/issues?iids[]='.$self->issue);
     my $issue_from_list = $issues->[0];
@@ -90,12 +90,7 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     }
 
     if ( $self->meta->does_role('App::TimeTracker::Command::Git') ) {
-        my $branch = $self->issue;
-        if ($name) {
-            $branch = $self->safe_branch_name($self->issue.' '.$name);
-        }
-        $branch=~s/_/-/g;
-        $self->branch( lc($branch) ) unless $self->branch;
+        $self->branch_from_ticket($self->issue, $name, $self->config->{gitlab}{branch_prefix});
     }
 
     # reopen
@@ -172,7 +167,7 @@ sub _call {
     error_message(join(" ",$res->{status},$res->{reason}));
 }
 
-sub _prefix {
+sub _gitlab_prefix {
     my $self = shift;
     return $self->config->{gitlab}{prefix} || 'issue#';
 }
