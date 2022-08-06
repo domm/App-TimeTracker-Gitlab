@@ -12,7 +12,7 @@ use App::TimeTracker::Utils 3.100 qw(error_message warning_message);
 use Moose::Role;
 use HTTP::Tiny;
 use JSON::XS qw(encode_json decode_json);
-use URI::Escape qw(uri_escape);
+use URI::Escape qw(uri_escape_utf8);
 
 has 'issue' => (
     is            => 'rw',
@@ -72,11 +72,11 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     $self->id('#'.$self->issue);
 
     my $issues = $self->_call('GET','projects/'.$self->project_id.'/issues?iids[]='.$self->issue);
-    my $issue_from_list = $issues->[0];
-    unless ($issue_from_list) {
+    unless ($issues && $issues->[0]) {
         error_message("Cannot find issue %s in %s",$self->issue,$self->project_id);
         return;
     }
+    my $issue_from_list = $issues->[0];
     my $issue_id = $issue_from_list->{id};
     my $issue =  $self->_call('GET','issues/'.$issue_id);
 
@@ -138,8 +138,12 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
                 delete $l{$remove};
             }
         }
-        $self->_call('PUT','projects/'.$self->project_id.'/issues/'.$issue_id.'?labels='.uri_escape(join(',',keys %l)));
-        say "Labels are now: ".join(', ',sort keys %l);
+        if ($self->_call('PUT','projects/'.$self->project_id.'/issues/'.$self->issue.'?labels='.uri_escape_utf8(join(',',keys %l)))) {
+            say "Labels are now: ".join(', ',sort keys %l);
+        }
+        else {
+            say "Could not set labels";
+        }
     }
 };
 
@@ -165,6 +169,7 @@ sub _call {
         return $data;
     }
     error_message(join(" ",$res->{status},$res->{reason}));
+    return;
 }
 
 sub _gitlab_prefix {

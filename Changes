@@ -1,6 +1,9 @@
 Revision history for App::TimeTracker::Command::Gitlab
 
 {{$NEXT}}
+    - use iid when setting labels (which seems to be the correct way)
+    - switch to gitlab api v4
+    - handle prefix via config
     - switch to Dist::Zilla::PluginBundle::Author::DOMM
 
 
