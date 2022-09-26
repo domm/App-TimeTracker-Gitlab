@@ -126,23 +126,25 @@ before [ 'cmd_start', 'cmd_continue', 'cmd_append' ] => sub {
     }
 
     # un/set labels
-    if (my $on_start = $self->config->{gitlab}{labels_on_start}) {
-        my %l = map {$_ => 1} @{$issue->{labels}};
-        if (my $add = $on_start->{add}) {
-            foreach my $new (@$add) {
-                $l{$new}=1;
+    if ($issue->{state} eq 'opened') {
+        if (my $on_start = $self->config->{gitlab}{labels_on_start}) {
+            my %l = map {$_ => 1} @{$issue->{labels}};
+            if (my $add = $on_start->{add}) {
+                foreach my $new (@$add) {
+                    $l{$new}=1;
+                }
             }
-        }
-        if (my $remove = $on_start->{remove}) {
-            foreach my $remove (@$remove) {
-                delete $l{$remove};
+            if (my $remove = $on_start->{remove}) {
+                foreach my $remove (@$remove) {
+                    delete $l{$remove};
+                }
             }
-        }
-        if ($self->_call('PUT','projects/'.$self->project_id.'/issues/'.$self->issue.'?labels='.uri_escape_utf8(join(',',keys %l)))) {
-            say "Labels are now: ".join(', ',sort keys %l);
-        }
-        else {
-            say "Could not set labels";
+            if ($self->_call('PUT','projects/'.$self->project_id.'/issues/'.$self->issue.'?labels='.uri_escape_utf8(join(',',keys %l)))) {
+                say "Labels are now: ".join(', ',sort keys %l);
+            }
+            else {
+                say "Could not set labels";
+            }
         }
     }
 };
@@ -251,7 +253,7 @@ If C<--issue> is set and we can find an issue with this id in your current repo
 
 =item * reopen a closed issue if C<reopen> is set
 
-=item * modifiy the labels by adding all labels listed in C<labels_on_start.add> and removing all lables listed in C<labels_on_start.add>
+=item * modifiy the labels by adding all labels listed in C<labels_on_start.add> and removing all lables listed in C<labels_on_start.add>, if the issue is in state C<opened>
 
 =back
 
